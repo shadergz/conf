@@ -2,7 +2,6 @@
 
 It's a simple configure language based on TOML syntax for rapid C based programs
 
-
 ## Example
 
 A simple example can be found inside the main program

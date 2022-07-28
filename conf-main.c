@@ -21,9 +21,9 @@ typedef struct
 {
     const char *confname;
 
-    size_t fileLine;
+    size_t file_line;
 
-    conf_err_e actualStatus;
+    conf_err_e actual_status;
 
     FILE *file;
 
@@ -70,65 +70,65 @@ const char *conf_err_to_str(conf_err_e err)
 }
 
 conf_err_e conf_parser(const char *table, const char *attribute, 
-    char *valueToSave, size_t valuebufferSize, conf_t *conf)
+    char *value_to_save, size_t value_buffer_size, conf_t *conf)
 {
-    assert(table && attribute && valueToSave && conf);
+    assert(table && attribute && value_to_save && conf);
 
-    /* Reset the file pointer position */
+    /* Resetting the file pointer position */
     /* Same as rewind function */
     fseek(conf->file, 0L, SEEK_SET);
 
-    conf->fileLine = 0;
+    conf->file_line = 0;
 
-    char linebuffer[100];
-    char tableData[100] = {'\0'};
+    char line_buffer[100];
+    char table_data[100] = {'\0'};
 
-    conf->actualStatus = CONF_E_TABLE_NOT_FOUND;
+    conf->actual_status = CONF_E_TABLE_NOT_FOUND;
 
-    while (fgets(linebuffer, sizeof(linebuffer), conf->file) != NULL)
+    while (fgets(line_buffer, sizeof(line_buffer), conf->file) != NULL)
     {
-        conf->fileLine++;
+        conf->file_line++;
 
-        if (*tableData == '\0')
+        if (*table_data == '\0')
         {
-            char *currentTable = strrchr(linebuffer, '[');
+            char *currentTable = strrchr(line_buffer, '[');
             if (currentTable != NULL)
             {
                 currentTable++;
                 char *tableEnd = strrchr(currentTable, ']');
 
-                conf->actualStatus = CONF_E_TABLE_END_NOT_FOUND;
+                conf->actual_status = CONF_E_TABLE_END_NOT_FOUND;
 
                 if (tableEnd == NULL)
                     break;
                 
                 uintptr_t size = tableEnd - currentTable;
-                strncpy(tableData, currentTable, size);
-                *(tableData + size) = '\0';
+                strncpy(table_data, currentTable, size);
+                *(table_data + size) = '\0';
 
-                if ((strncmp(tableData, table, strlen(table)) != 0))
-                    /* After the tableSelected gets a address, the tableData will not beging modified anymore */
-                    memset(tableData, '\0', sizeof(tableData));
+                if ((strncmp(table_data, table, strlen(table)) != 0))
+                    /* After the tableSelected gets a address, the table_data will not beging modified anymore */
+                    memset(table_data, '\0', sizeof(table_data));
             }
             continue;
         }
 
-        conf->actualStatus = CONF_E_ATTR_NOT_FOUND;
+        conf->actual_status = CONF_E_ATTR_NOT_FOUND;
 
         char *bak, *tok;
-        char *attributeName = strtok_r(linebuffer, "=", &bak);
+        char *attr_name = strtok_r(line_buffer, "=", &bak);
 
-        if (attributeName == NULL)
+        if (attr_name == NULL)
             break;
 
-        /* Cut the final space at the end */
-        char *attributeEnd = strrchr(attributeName, ' ');
+        /* Cutting the final space at the end */
+        char *attributeEnd = strrchr(attr_name, ' ');
         if (attributeEnd)
             *attributeEnd = '\0';
         
-        conf->actualStatus = CONF_E_VALUE_NOT_FOUND;
+        conf->actual_status = CONF_E_VALUE_NOT_FOUND;
 
-        if ((strcmp(attributeName, attribute) != 0))
+        if ((strcmp(attr_name, attribute) != 0))
             continue;
 
         char *value = strtok_r(NULL, "=", &bak);
@@ -136,29 +136,29 @@ conf_err_e conf_parser(const char *table, const char *attribute,
         if (value == NULL)
             break;
         
-        conf->actualStatus = CONF_E_OK;
+        conf->actual_status = CONF_E_OK;
 
         if (*value == ' ')
             value++;
 
-        char *valueEnd = strpbrk(value + (strlen(value) - 1), "\n ");
+        char *value_end = strpbrk(value + (strlen(value) - 1), "\n ");
 
-        if (valueEnd != NULL)
-            *valueEnd = '\0';
+        if (value_end != NULL)
+            *value_end = '\0';
 
-        strncpy(valueToSave, value, valuebufferSize);
+        strncpy(value_to_save, value, value_buffer_size);
         
         break;
     }
 
-    return conf->actualStatus;
+    return conf->actual_status;
 }
 
 int conf_print_err(conf_t *conf)
 {
     assert(conf);
 
-    return fprintf(stderr, "error at line %ld: %s\n", conf->fileLine, conf_err_to_str(conf->actualStatus));
+    return fprintf(stderr, "error at line %ld: %s\n", conf->file_line, conf_err_to_str(conf->actual_status));
 
 }
 
