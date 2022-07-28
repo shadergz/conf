@@ -91,19 +91,19 @@ conf_err_e conf_parser(const char *table, const char *attribute,
 
         if (*table_data == '\0')
         {
-            char *currentTable = strrchr(line_buffer, '[');
-            if (currentTable != NULL)
+            char *current_table = strrchr(line_buffer, '[');
+            if (current_table != NULL)
             {
-                currentTable++;
-                char *tableEnd = strrchr(currentTable, ']');
+                current_table++;
+                char *tableEnd = strrchr(current_table, ']');
 
                 conf->actual_status = CONF_E_TABLE_END_NOT_FOUND;
 
                 if (tableEnd == NULL)
                     break;
                 
-                uintptr_t size = tableEnd - currentTable;
-                strncpy(table_data, currentTable, size);
+                uintptr_t size = tableEnd - current_table;
+                strncpy(table_data, current_table, size);
                 *(table_data + size) = '\0';
 
                 if ((strncmp(table_data, table, strlen(table)) != 0))
